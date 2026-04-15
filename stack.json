@@ -1,0 +1,34 @@
+{
+  "frontend": {
+    "framework": "Next.js (App Router)",
+    "language": "TypeScript",
+    "styling": ["Tailwind CSS", "shadcn/ui"],
+    "state": "Zustand"
+  },
+  "backend": {
+    "runtime": "Node.js",
+    "framework": "Fastify",
+    "database": "PostgreSQL",
+    "cache": "Redis",
+    "orm": "Prisma"
+  },
+  "services": {
+    "payments": ["Stripe", "ЮKassa"],
+    "storage": ["AWS S3", "Cloudflare R2"],
+    "email": ["SendGrid", "Resend"],
+    "auth": ["Clerk", "NextAuth"]
+  },
+  "infrastructure": {
+    "local": ["Docker", "docker-compose"],
+    "hosting": {
+      "frontend": "Vercel",
+      "backend": ["Railway", "Render"],
+      "scale": ["AWS", "GCP"]
+    }
+  },
+  "additional": {
+    "search": ["Elasticsearch", "Typesense"],
+    "queues": "BullMQ"
+  },
+  "core_entities": ["Listing", "User", "Deal", "Document", "Offer"]
+}
