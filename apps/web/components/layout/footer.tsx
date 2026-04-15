@@ -27,18 +27,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/browse?category=AI_ML" className="text-muted-foreground hover:text-foreground">
-                  AI & ML
+                <Link href="/sell" className="text-muted-foreground hover:text-foreground">
+                  Продать проект
                 </Link>
               </li>
               <li>
-                <Link href="/browse?category=SAAS" className="text-muted-foreground hover:text-foreground">
-                  SaaS
+                <Link href="/buy" className="text-muted-foreground hover:text-foreground">
+                  Купить проект
                 </Link>
               </li>
               <li>
-                <Link href="/browse?category=WEB3" className="text-muted-foreground hover:text-foreground">
-                  Web3
+                <Link href="/valuation" className="text-muted-foreground hover:text-foreground">
+                  Оценить стоимость
                 </Link>
               </li>
             </ul>
@@ -51,16 +51,6 @@ export function Footer() {
               <li>
                 <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground">
                   Как это работает
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
-                  Тарифы
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-muted-foreground hover:text-foreground">
-                  Блог
                 </Link>
               </li>
               <li>
@@ -78,11 +68,6 @@ export function Footer() {
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-foreground">
                   О нас
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-muted-foreground hover:text-foreground">
-                  Контакты
                 </Link>
               </li>
               <li>

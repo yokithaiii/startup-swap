@@ -116,7 +116,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             <div className="space-y-0.5">
               <div className="flex items-center gap-1 text-muted-foreground">
                 <Users className="h-3 w-3" />
-                <span className="text-xs">Пользователи</span>
+                <span className="text-xs">Польз.</span>
               </div>
               <p className="font-semibold">{formatNumber(listing.metrics.users.total)}</p>
             </div>

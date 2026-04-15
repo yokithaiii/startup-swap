@@ -30,6 +30,8 @@ export const listingSchema = z.object({
   // Step 4 — Media
   demoUrl: z.string().url('Введите корректный URL').optional().or(z.literal('')),
   githubUrl: z.string().url('Введите корректный URL').optional().or(z.literal('')),
+  thumbnailUrl: z.string().optional(),
+  images: z.array(z.string()).optional(),
 
   // Step 5 — Pricing
   price: z.coerce.number().min(100, 'Минимальная цена $100'),
@@ -60,6 +62,8 @@ export const defaultValues: ListingFormData = {
   churn: undefined,
   demoUrl: '',
   githubUrl: '',
+  thumbnailUrl: '',
+  images: [],
   price: 0,
   currency: 'USD',
   priceNegotiable: false,

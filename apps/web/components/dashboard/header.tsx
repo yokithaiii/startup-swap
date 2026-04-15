@@ -3,13 +3,23 @@
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Sun, Moon, Bell, Plus, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { SidebarContent } from './sidebar'
+import { useAuthStore } from '@/store/auth'
 
 export function DashboardHeader() {
   const { theme, setTheme } = useTheme()
+  const { profile, user } = useAuthStore()
+
+  const displayName = profile?.first_name
+    ?? user?.firstName
+    ?? profile?.email ?? ''
+
+  const initials = (profile?.first_name ?? user?.firstName ?? profile?.email ?? '?')
+    .charAt(0).toUpperCase()
 
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">
@@ -28,7 +38,7 @@ export function DashboardHeader() {
 
       <div className="hidden lg:block" />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-4 w-4" />
           <Badge variant="destructive" className="absolute -right-1 -top-1 h-4 w-4 rounded-full p-0 text-[10px]">3</Badge>
@@ -47,6 +57,14 @@ export function DashboardHeader() {
             <span className="hidden sm:inline">Разместить проект</span>
             <span className="sm:hidden">Добавить</span>
           </Button>
+        </Link>
+
+        {/* User avatar */}
+        <Link href="/dashboard/settings">
+          <Avatar className="h-8 w-8 cursor-pointer">
+            <AvatarImage src={profile?.avatar_url ?? undefined} alt={displayName} />
+            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+          </Avatar>
         </Link>
       </div>
     </header>

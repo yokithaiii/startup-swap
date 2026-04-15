@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { ListingCard } from '@/components/listing/listing-card'
 import { mockListings } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
+import { ValuationWidget } from '@/components/landing/valuation-widget'
 import { 
   Rocket, 
   Zap, 
@@ -14,7 +15,9 @@ import {
   ArrowRight,
   Lock,
   BarChart3,
-  Clock
+  Clock,
+  TrendingUp,
+  DollarSign,
 } from 'lucide-react'
 
 function SectionDivider() {
@@ -135,7 +138,63 @@ export default function Home() {
 
       <SectionDivider />
 
-      {/* Categories */}
+      {/* Buy / Sell banners */}
+      <section className="py-20 md:py-28">
+        <div className="container">
+          <div className="grid gap-5 md:grid-cols-2">
+            {/* Buy */}
+            <Link href="/buy">
+              <div className="group relative overflow-hidden rounded-2xl border bg-muted/30 p-8 transition-all hover:bg-muted/50 hover:shadow-md">
+                <div className="absolute right-6 top-6 opacity-0 transition-opacity group-hover:opacity-100">
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border bg-background">
+                  <Search className="h-5 w-5" />
+                </div>
+                <h3 className="text-xl font-bold">Хочу купить проект</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                  Верифицированные проекты с реальными метриками. Фильтр по tech stack, MRR и категории.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {['SaaS', 'AI & ML', 'E-commerce', 'Web3'].map(t => (
+                    <Badge key={t} variant="secondary" className="font-normal">{t}</Badge>
+                  ))}
+                </div>
+                <p className="mt-4 text-sm font-medium">
+                  Смотреть проекты →
+                </p>
+              </div>
+            </Link>
+
+            {/* Sell */}
+            <Link href="/sell">
+              <div className="group relative overflow-hidden rounded-2xl border bg-foreground p-8 text-background transition-all hover:opacity-95 hover:shadow-md">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]" />
+                <div className="absolute right-6 top-6 opacity-0 transition-opacity group-hover:opacity-100">
+                  <ArrowRight className="h-5 w-5 text-background/60" />
+                </div>
+                <div className="relative mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-background/20 bg-background/10">
+                  <DollarSign className="h-5 w-5 text-background" />
+                </div>
+                <h3 className="relative text-xl font-bold text-background">Хочу продать проект</h3>
+                <p className="relative mt-2 text-sm text-background/60 leading-relaxed">
+                  Размещение бесплатно. Комиссия 10% только после сделки. Верификация за 24–48 часов.
+                </p>
+                <div className="relative mt-6 flex flex-wrap gap-2">
+                  {['Бесплатно', '24–48ч', 'Эскроу'].map(t => (
+                    <span key={t} className="rounded-full border border-background/20 bg-background/10 px-3 py-0.5 text-xs text-background/70">{t}</span>
+                  ))}
+                </div>
+                <p className="relative mt-4 text-sm font-medium text-background">
+                  Разместить проект →
+                </p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider />
       <section className="py-20 md:py-28">
         <div className="container">
           <div className="mb-12 text-center">
@@ -284,6 +343,24 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <SectionDivider />
+
+      {/* Valuation widget */}
+      <section className="py-20 md:py-28">
+        <div className="container">
+          <div className="mb-12 text-center">
+            <p className="mb-3 text-sm font-medium italic text-muted-foreground">Бесплатно</p>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Сколько стоит ваш проект?
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Введите метрики — получите оценку за 30 секунд
+            </p>
+          </div>
+          <ValuationWidget />
         </div>
       </section>
 

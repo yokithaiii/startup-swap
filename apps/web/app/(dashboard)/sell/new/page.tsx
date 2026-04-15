@@ -14,6 +14,8 @@ import { StepPreview } from '@/components/sell/step-preview'
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { createListing } from '@/lib/api/listings'
 
 const STEPS = [
   { id: 1, title: 'Основное' },
@@ -36,6 +38,7 @@ const STEP_FIELDS: Record<number, (keyof ListingFormData)[]> = {
 export default function NewListingPage() {
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
+  const router = useRouter()
 
   const form = useForm<ListingFormData>({
     resolver: zodResolver(listingSchema),
@@ -51,10 +54,19 @@ export default function NewListingPage() {
 
   const prev = () => setStep(s => Math.max(s - 1, 1))
 
-  const onSubmit = (data: ListingFormData) => {
-    console.log('Submit:', data)
-    toast.success('Проект отправлен на верификацию!')
-    setSubmitted(true)
+  const onSubmit = async (data: ListingFormData) => {
+    try {
+      await createListing(data)
+      toast.success('Проект отправлен на верификацию!')
+      setSubmitted(true)
+    } catch (err: any) {
+      toast.error(err.message ?? 'Ошибка при создании')
+    }
+  }
+
+  // Кнопка "Отправить" — явный вызов submit только с последнего шага
+  const handleFinalSubmit = () => {
+    form.handleSubmit(onSubmit)()
   }
 
   if (submitted) {
@@ -117,7 +129,7 @@ export default function NewListingPage() {
           </div>
 
           {/* Step content */}
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="rounded-xl border bg-card p-8">
               {step === 1 && <StepBasic form={form} />}
               {step === 2 && <StepTech form={form} />}
@@ -145,9 +157,16 @@ export default function NewListingPage() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button type="submit">
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Отправить на верификацию
+                <Button
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <>Отправляем...</>
+                  ) : (
+                    <><CheckCircle2 className="mr-2 h-4 w-4" />Отправить на верификацию</>
+                  )}
                 </Button>
               )}
             </div>

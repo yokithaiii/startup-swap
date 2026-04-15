@@ -68,29 +68,29 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left — Branding */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden border-r bg-zinc-950 p-12 lg:flex">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff12_1px,transparent_1px),linear-gradient(to_bottom,#ffffff12_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(255,255,255,0.08),transparent)]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden lg:flex bg-zinc-950 p-12">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
+        {/* Logo */}
         <div className="relative flex items-center gap-2">
-          <Rocket className="h-6 w-6 text-white" />
-          <span className="text-xl font-bold text-white">StartupSwap</span>
+          <Rocket className="h-5 w-5 text-white" />
+          <span className="text-lg font-bold text-white">StartupSwap</span>
         </div>
 
+        {/* Center */}
         <div className="relative space-y-8">
           <div>
-            <h2 className="text-3xl font-bold leading-tight text-white">
-              Начните зарабатывать
-              <br />
-              на своих проектах
+            <h2 className="text-3xl font-bold leading-snug text-white">
+              Начните зарабатывать<br />на своих проектах
             </h2>
-            <p className="mt-4 text-zinc-400 leading-relaxed">
+            <p className="mt-3 text-sm text-zinc-400 leading-relaxed max-w-sm">
               Зарегистрируйтесь бесплатно и получите доступ к сотням покупателей, готовых приобрести ваш проект.
             </p>
           </div>
 
-          <div className="space-y-3">
+          {/* Features */}
+          <div className="space-y-2.5">
             {[
               { icon: CheckCircle2, text: 'Бесплатное размещение проекта' },
               { icon: TrendingUp, text: 'AI-оценка стоимости за секунды' },
@@ -98,14 +98,15 @@ export default function SignUpPage() {
               { icon: Shield, text: 'Защита сделки через эскроу' },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/5">
-                  <Icon className="h-3.5 w-3.5 text-zinc-400" />
+                <div className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-white/5">
+                  <Icon className="h-3 w-3 text-zinc-400" />
                 </div>
                 <span className="text-sm text-zinc-400">{text}</span>
               </div>
             ))}
           </div>
 
+          {/* Commission note */}
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-sm font-medium text-white">Комиссия только при продаже</p>
             <p className="mt-1 text-xs text-zinc-500">
@@ -114,8 +115,9 @@ export default function SignUpPage() {
           </div>
         </div>
 
+        {/* Quote */}
         <div className="relative border-t border-white/10 pt-6">
-          <p className="text-sm italic text-zinc-500">
+          <p className="text-sm text-zinc-500 italic">
             «Нашёл покупателя за 5 дней. Никаких лишних переговоров.»
           </p>
           <p className="mt-2 text-xs text-zinc-600">— Дмитрий В., продавец</p>
@@ -131,7 +133,7 @@ export default function SignUpPage() {
           </div>
 
           <div className="space-y-3">
-            <Button
+            {/* <Button
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleOAuth('google')}
@@ -148,7 +150,7 @@ export default function SignUpPage() {
                 </svg>
               )}
               Зарегистрироваться через Google
-            </Button>
+            </Button> */}
             <Button
               variant="outline"
               className="w-full gap-3"

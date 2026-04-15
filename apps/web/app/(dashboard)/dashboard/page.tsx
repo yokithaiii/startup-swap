@@ -1,9 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { mockListings } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
+import { useAuthStore } from '@/store/auth'
 import {
   Package, Eye, MessageSquare, Handshake,
   TrendingUp, ArrowRight, ImageIcon, Clock
@@ -32,12 +35,18 @@ const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondar
 }
 
 export default function DashboardPage() {
+  const { profile, user } = useAuthStore()
+  const firstName = profile?.first_name 
+    ?? user?.firstName
+    ?? profile?.email?.split('@')[0] 
+    ?? 'Пользователь'
+
   return (
     <div className="space-y-8">
       {/* Page title */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Обзор</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Добро пожаловать, Алексей</p>
+        <p className="mt-1 text-sm text-muted-foreground">Добро пожаловать, {firstName}</p>
       </div>
 
       {/* Stats */}

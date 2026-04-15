@@ -6,11 +6,7 @@ import { Button } from '@/components/ui/button'
 import { 
   Rocket, 
   Search, 
-  User, 
   Menu,
-  Plus,
-  Heart,
-  Bell,
   Sun,
   Moon
 } from 'lucide-react'
@@ -23,7 +19,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Badge } from '@/components/ui/badge'
+import { useAuthStore } from '@/store/auth'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -40,8 +37,10 @@ function ThemeToggle() {
 }
 
 export function Navbar() {
-  const isAuthenticated = false
-  const notificationCount = 3
+  const { isAuthenticated, profile, user, signOut } = useAuthStore()
+
+  const initials = (profile?.first_name ?? user?.firstName ?? profile?.email ?? '?')
+    .charAt(0).toUpperCase()
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -55,13 +54,16 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:space-x-6">
           <Link href="/browse" className="text-sm font-medium transition-colors hover:text-primary">
-            Каталог проектов
+            Проекты
+          </Link>
+          <Link href="/buy" className="text-sm font-medium transition-colors hover:text-primary">
+            Купить
+          </Link>
+          <Link href="/sell" className="text-sm font-medium transition-colors hover:text-primary">
+            Продать
           </Link>
           <Link href="/how-it-works" className="text-sm font-medium transition-colors hover:text-primary">
             Как это работает
-          </Link>
-          <Link href="/pricing" className="text-sm font-medium transition-colors hover:text-primary">
-            Тарифы
           </Link>
         </div>
 
@@ -69,40 +71,28 @@ export function Navbar() {
         <div className="flex items-center space-x-4">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {notificationCount > 0 && (
-                  <Badge variant="destructive" className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">
-                    {notificationCount}
-                  </Badge>
-                )}
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Heart className="h-5 w-5" />
-              </Button>
               <ThemeToggle />
-              <Link href="/sell/new">
-                <Button className="hidden md:flex">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Продать стартап
-                </Button>
+              <Link href="/dashboard">
+                <Button>Дашборд</Button>
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
+                  <Avatar className="h-8 w-8 cursor-pointer">
+                    <AvatarImage src={profile?.avatar_url ?? user?.avatar ?? undefined} />
+                    <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                  </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel className="font-normal">
+                    <p className="font-medium">{profile?.first_name ?? user?.firstName ?? 'Профиль'}</p>
+                    <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild><Link href="/dashboard">Дашборд</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/my-listings">Мои листинги</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/my-offers">Мои офферы</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/my-deals">Мои сделки</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/listings">Мои проекты</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/settings">Настройки</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="/settings">Настройки</Link></DropdownMenuItem>
-                  <DropdownMenuItem>Выйти</DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut} className="text-destructive">Выйти</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -128,8 +118,9 @@ export function Navbar() {
             <SheetContent side="right">
               <div className="flex flex-col space-y-4 mt-8">
                 <Link href="/browse" className="text-lg font-medium">Каталог</Link>
+                <Link href="/sell" className="text-lg font-medium">Продать</Link>
+                <Link href="/buy" className="text-lg font-medium">Купить</Link>
                 <Link href="/how-it-works" className="text-lg font-medium">Как это работает</Link>
-                <Link href="/pricing" className="text-lg font-medium">Тарифы</Link>
                 {isAuthenticated && (
                   <>
                     <hr />
