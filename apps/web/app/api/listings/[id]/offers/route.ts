@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { createNotification } from '@/lib/notifications'
 
 const offerSchema = z.object({
   amount:     z.number().positive('Сумма должна быть положительной'),
@@ -10,32 +11,22 @@ const offerSchema = z.object({
 
 type Params = { params: Promise<{ id: string }> }
 
-// POST /api/listings/[id]/offers — создать оффер
 export async function POST(request: Request, { params }: Params) {
   const { id: listingId } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 })
-  }
+  if (!user) return NextResponse.json({ error: 'Не авторизован' }, { status: 401 })
 
-  // Получаем листинг чтобы узнать seller_id и проверить статус
   const { data: listing } = await supabase
     .from('listings')
-    .select('id, user_id, status, currency')
+    .select('id, user_id, status, currency, title')
     .eq('id', listingId)
     .single()
 
-  if (!listing) {
-    return NextResponse.json({ error: 'Листинг не найден' }, { status: 404 })
-  }
-  if (listing.status !== 'ACTIVE') {
-    return NextResponse.json({ error: 'Листинг недоступен для офферов' }, { status: 400 })
-  }
-  if (listing.user_id === user.id) {
-    return NextResponse.json({ error: 'Нельзя делать оффер на свой листинг' }, { status: 400 })
-  }
+  if (!listing) return NextResponse.json({ error: 'Листинг не найден' }, { status: 404 })
+  if (listing.status !== 'ACTIVE') return NextResponse.json({ error: 'Листинг недоступен для офферов' }, { status: 400 })
+  if (listing.user_id === user.id) return NextResponse.json({ error: 'Нельзя делать оффер на свой листинг' }, { status: 400 })
 
   try {
     const body = await request.json()
@@ -56,15 +47,24 @@ export async function POST(request: Request, { params }: Params) {
       .select()
       .single()
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    // Уведомление продавцу о новом оффере
+    const symbol = listing.currency === 'USD' ? '$' : listing.currency === 'EUR' ? '€' : '₽'
+    await createNotification({
+      supabase,
+      userId:    listing.user_id,
+      type:      'offer_received',
+      title:     'Новый оффер',
+      message:   `Вам предложили ${symbol}${Number(data.amount).toLocaleString()} за «${listing.title}»`,
+      listingId,
+      offerId:   offer.id,
+      link:      '/dashboard/offers',
+    })
 
     return NextResponse.json({ offer }, { status: 201 })
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.errors[0].message }, { status: 422 })
-    }
+    if (err instanceof z.ZodError) return NextResponse.json({ error: err.errors[0].message }, { status: 422 })
     return NextResponse.json({ error: 'Внутренняя ошибка' }, { status: 500 })
   }
 }

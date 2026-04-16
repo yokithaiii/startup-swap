@@ -134,7 +134,7 @@ export function ListingCard({ listing }: ListingCardProps) {
                 <TrendingUp className="h-3 w-3" />
                 <span className="text-xs">MRR</span>
               </div>
-              <p className="font-semibold">{currencySymbol}{formatNumber(listing.metrics.mrr || 0)}</p>
+              <p className="font-semibold text-emerald-500">{currencySymbol}{formatNumber(listing.metrics.mrr || 0)}</p>
             </div>
             <div className="space-y-0.5">
               <div className="flex items-center gap-1 text-muted-foreground">

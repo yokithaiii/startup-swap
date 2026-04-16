@@ -25,23 +25,25 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Обновляем сессию — важно не удалять этот вызов
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Защищённые роуты
-  const protectedPaths = ['/dashboard', '/sell']
-  const isProtected = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
+  const pathname = request.nextUrl.pathname
+
+  // Защищённые роуты — только проверка авторизации
+  // Проверка роли ADMIN происходит на уровне каждого API роута через requireAdmin()
+  const protectedPaths = ['/dashboard', '/sell', '/admin']
+  const isProtected = protectedPaths.some(p => pathname.startsWith(p))
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
-    url.searchParams.set('redirectTo', request.nextUrl.pathname)
+    url.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(url)
   }
 
-  // Если авторизован и идёт на /sign-in или /sign-up — редиректим в дашборд
+  // Авторизован и идёт на /sign-in или /sign-up — редиректим в дашборд
   const authPaths = ['/sign-in', '/sign-up']
-  const isAuthPage = authPaths.some(p => request.nextUrl.pathname.startsWith(p))
+  const isAuthPage = authPaths.some(p => pathname.startsWith(p))
 
   if (isAuthPage && user) {
     const url = request.nextUrl.clone()

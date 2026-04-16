@@ -1,115 +1,109 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import { useAuthStore } from '@/store/auth'
 import {
   MessageSquare, DollarSign, CheckCircle2,
-  Eye, Package, Bell, BellOff, Trash2
+  XCircle, Package, Bell, BellOff, Trash2
 } from 'lucide-react'
 
-type NotificationType = 'offer' | 'deal' | 'view' | 'verification' | 'message' | 'system'
+type NotificationType =
+  | 'offer_received'
+  | 'offer_accepted'
+  | 'offer_rejected'
+  | 'listing_approved'
+  | 'listing_rejected'
+  | 'new_message'
 
 interface Notification {
-  id: string
-  type: NotificationType
-  title: string
-  message: string
-  time: string
-  read: boolean
-  link?: string
+  id:         string
+  type:       NotificationType
+  title:      string
+  message:    string
+  read:       boolean
+  link:       string | null
+  created_at: string
 }
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    type: 'offer',
-    title: 'Новый оффер',
-    message: 'Дмитрий В. предложил $68 000 за «AI-Powered Content Generator SaaS»',
-    time: '2 часа назад',
-    read: false,
-    link: '/dashboard/offers',
-  },
-  {
-    id: '2',
-    type: 'offer',
-    title: 'Новый оффер',
-    message: 'Анна К. предложила $55 000 за «AI-Powered Content Generator SaaS»',
-    time: '5 часов назад',
-    read: false,
-    link: '/dashboard/offers',
-  },
-  {
-    id: '3',
-    type: 'deal',
-    title: 'Оффер принят',
-    message: 'Ваш оффер на «E-Commerce Analytics Dashboard» был принят. Сделка начата.',
-    time: '1 день назад',
-    read: false,
-    link: '/dashboard/deals',
-  },
-  {
-    id: '4',
-    type: 'verification',
-    title: 'Проект верифицирован',
-    message: '«AI-Powered Content Generator SaaS» прошёл верификацию и опубликован в каталоге.',
-    time: '3 дня назад',
-    read: true,
-  },
-  {
-    id: '5',
-    type: 'view',
-    title: 'Рост просмотров',
-    message: '«E-Commerce Analytics Dashboard» просмотрели 120 раз за последние 24 часа.',
-    time: '4 дня назад',
-    read: true,
-  },
-  {
-    id: '6',
-    type: 'message',
-    title: 'Новое сообщение',
-    message: 'Сергей М. задал вопрос по проекту «AI-Powered Content Generator SaaS».',
-    time: '5 дней назад',
-    read: true,
-  },
-  {
-    id: '7',
-    type: 'system',
-    title: 'Добро пожаловать!',
-    message: 'Ваш аккаунт успешно создан. Разместите первый проект и начните получать офферы.',
-    time: '7 дней назад',
-    read: true,
-  },
-]
+const TYPE_CONFIG: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
+  offer_received:   { icon: DollarSign,    color: 'text-violet-500',       bg: 'bg-violet-500/10' },
+  offer_accepted:   { icon: CheckCircle2,  color: 'text-emerald-500',      bg: 'bg-emerald-500/10' },
+  offer_rejected:   { icon: XCircle,       color: 'text-destructive',      bg: 'bg-destructive/10' },
+  listing_approved: { icon: Package,       color: 'text-emerald-500',      bg: 'bg-emerald-500/10' },
+  listing_rejected: { icon: Package,       color: 'text-destructive',      bg: 'bg-destructive/10' },
+  new_message:      { icon: MessageSquare, color: 'text-sky-500',          bg: 'bg-sky-500/10' },
+  default:          { icon: Bell,          color: 'text-muted-foreground', bg: 'bg-muted' },
+}
 
-const TYPE_CONFIG: Record<NotificationType, { icon: React.ElementType; color: string; bg: string }> = {
-  offer:        { icon: DollarSign,   color: 'text-violet-500',  bg: 'bg-violet-500/10' },
-  deal:         { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-  view:         { icon: Eye,          color: 'text-blue-500',    bg: 'bg-blue-500/10' },
-  verification: { icon: Package,      color: 'text-amber-500',   bg: 'bg-amber-500/10' },
-  message:      { icon: MessageSquare,color: 'text-sky-500',     bg: 'bg-sky-500/10' },
-  system:       { icon: Bell,         color: 'text-muted-foreground', bg: 'bg-muted' },
+function formatTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime()
+  if (diff < 60_000)        return 'только что'
+  if (diff < 3_600_000)     return `${Math.floor(diff / 60_000)} мин. назад`
+  if (diff < 86_400_000)    return `${Math.floor(diff / 3_600_000)} ч. назад`
+  if (diff < 604_800_000)   return `${Math.floor(diff / 86_400_000)} дн. назад`
+  return new Date(iso).toLocaleDateString('ru-RU')
 }
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS)
-  const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const { user, profile }                 = useAuthStore()
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading]             = useState(true)
+  const [filter, setFilter]               = useState<'all' | 'unread'>('all')
+
+  const currentUserId = user?.id ?? profile?.id ?? ''
+
+  // Загрузка
+  useEffect(() => {
+    fetch('/api/notifications')
+      .then(r => r.json())
+      .then(json => setNotifications(json.notifications ?? []))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Realtime
+  useEffect(() => {
+    if (!currentUserId) return
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`notifications:${currentUserId}`)
+      .on(
+        'postgres_changes',
+        {
+          event:  'INSERT',
+          schema: 'public',
+          table:  'notifications',
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        (payload) => {
+          setNotifications(prev => [payload.new as Notification, ...prev])
+        },
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [currentUserId])
 
   const unreadCount = notifications.filter(n => !n.read).length
+  const visible     = filter === 'unread' ? notifications.filter(n => !n.read) : notifications
 
-  const visible = filter === 'unread'
-    ? notifications.filter(n => !n.read)
-    : notifications
-
-  const markAllRead = () =>
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-
-  const markRead = (id: string) =>
+  const markRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+    await fetch(`/api/notifications/${id}`, { method: 'PATCH' })
+  }
 
-  const remove = (id: string) =>
+  const markAllRead = async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+    await fetch('/api/notifications', { method: 'PATCH' })
+  }
+
+  const remove = async (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id))
+    await fetch(`/api/notifications/${id}`, { method: 'DELETE' })
+  }
 
   return (
     <div className="space-y-6">
@@ -117,7 +111,7 @@ export default function NotificationsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Уведомления</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {unreadCount > 0 ? `${unreadCount} непрочитанных` : 'Всё прочитано'}
+            {loading ? '...' : unreadCount > 0 ? `${unreadCount} непрочитанных` : 'Всё прочитано'}
           </p>
         </div>
         {unreadCount > 0 && (
@@ -128,7 +122,7 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {/* Filter tabs */}
+      {/* Filter */}
       <div className="flex gap-1 rounded-lg border p-1 w-fit">
         {(['all', 'unread'] as const).map(f => (
           <button
@@ -152,7 +146,19 @@ export default function NotificationsPage() {
       </div>
 
       {/* List */}
-      {visible.length === 0 ? (
+      {loading ? (
+        <div className="space-y-2">
+          {[1,2,3].map(i => (
+            <div key={i} className="flex items-start gap-4 rounded-xl border p-4">
+              <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : visible.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-20 text-center">
           <Bell className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1} />
           <p className="font-medium">Нет уведомлений</p>
@@ -163,39 +169,33 @@ export default function NotificationsPage() {
       ) : (
         <div className="space-y-2">
           {visible.map(n => {
-            const cfg = TYPE_CONFIG[n.type]
+            const cfg  = TYPE_CONFIG[n.type] ?? TYPE_CONFIG.default
             const Icon = cfg.icon
-            return (
+            const content = (
               <div
-                key={n.id}
                 className={cn(
-                  'group flex items-start gap-4 rounded-xl border p-4 transition-colors',
+                  'group flex items-start gap-4 rounded-xl border p-4 transition-colors cursor-pointer',
                   !n.read && 'bg-muted/40'
                 )}
-                onClick={() => markRead(n.id)}
+                onClick={() => !n.read && markRead(n.id)}
               >
-                {/* Icon */}
                 <div className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full', cfg.bg)}>
                   <Icon className={cn('h-4 w-4', cfg.color)} />
                 </div>
-
-                {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <p className={cn('text-sm font-medium', !n.read && 'font-semibold')}>
+                    <p className={cn('text-sm', !n.read ? 'font-semibold' : 'font-medium')}>
                       {n.title}
                     </p>
                     <div className="flex shrink-0 items-center gap-2">
-                      {!n.read && (
-                        <span className="h-2 w-2 rounded-full bg-blue-500" />
-                      )}
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{n.time}</span>
+                      {!n.read && <span className="h-2 w-2 rounded-full bg-blue-500" />}
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {formatTime(n.created_at)}
+                      </span>
                     </div>
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">{n.message}</p>
                 </div>
-
-                {/* Delete */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -204,6 +204,12 @@ export default function NotificationsPage() {
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
+              </div>
+            )
+
+            return (
+              <div key={n.id}>
+                {content}
               </div>
             )
           })}

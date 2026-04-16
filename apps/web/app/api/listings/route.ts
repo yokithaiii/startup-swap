@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       profiles:user_id (
         id, first_name, last_name, avatar_url, reputation
       )
-    `)
+    `, { count: 'exact' })
     .eq('status', 'ACTIVE')
     .eq('visibility', 'public')
 

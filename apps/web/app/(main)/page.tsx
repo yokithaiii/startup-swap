@@ -63,7 +63,7 @@ export default async function Home() {
         
         <div className="container relative py-24 md:py-32 lg:py-40">
           <div className="mx-auto max-w-4xl text-center">
-            <Badge variant="outline" className="mb-6 px-3 py-1 border-border/60 bg-background text-foreground">
+            <Badge variant="outline" className="mb-6 p-3 border-border/60 bg-background text-foreground">
               <Clock className="mr-1.5 h-3 w-3" />
               Верификация за 24–48 часов
             </Badge>
