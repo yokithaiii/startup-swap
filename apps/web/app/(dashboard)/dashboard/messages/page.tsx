@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { Suspense, useEffect, useRef, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -461,7 +461,7 @@ function ChatWindow({
 
 /* ─── MessagesPage ───────────────────────────────────────── */
 
-export default function MessagesPage() {
+function MessagesContent() {
   const searchParams                = useSearchParams()
   const { user, profile }           = useAuthStore()
   const [convs, setConvs]           = useState<Conversation[]>([])
@@ -648,5 +648,13 @@ export default function MessagesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense>
+      <MessagesContent />
+    </Suspense>
   )
 }

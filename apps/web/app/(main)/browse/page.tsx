@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { Suspense, useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ const SORT_OPTIONS = [
   { value: 'popular',    label: 'Популярные' },
 ]
 
-export default function BrowsePage() {
+function BrowseContent() {
   const searchParams = useSearchParams()
   const [listings, setListings]     = useState<Listing[]>([])
   const [loading, setLoading]       = useState(true)
@@ -210,5 +210,13 @@ export default function BrowsePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense>
+      <BrowseContent />
+    </Suspense>
   )
 }
