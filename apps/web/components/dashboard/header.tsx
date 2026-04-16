@@ -39,10 +39,12 @@ export function DashboardHeader() {
       <div className="hidden lg:block" />
 
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <Badge variant="destructive" className="absolute -right-1 -top-1 h-4 w-4 rounded-full p-0 text-[10px]">3</Badge>
-        </Button>
+        <Link href="/dashboard/notifications">
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-4 w-4" />
+            <Badge variant="destructive" className="absolute -right-1 -top-1 h-4 w-4 rounded-full p-0 text-[10px]">3</Badge>
+          </Button>
+        </Link>
         <Button
           variant="ghost"
           size="icon"

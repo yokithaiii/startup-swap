@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ListingCard } from '@/components/listing/listing-card'
-import { mockListings } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
 import { ValuationWidget } from '@/components/landing/valuation-widget'
+import { createClient } from '@/lib/supabase/server'
+import { dbToListing } from '@/lib/adapters/listing'
 import { 
   Rocket, 
   Zap, 
@@ -26,8 +27,32 @@ function SectionDivider() {
   )
 }
 
-export default function Home() {
-  const featuredListings = mockListings.filter(l => l.featured).slice(0, 3)
+export default async function Home() {
+  const supabase = await createClient()
+
+  // Топ проекты: featured сначала, потом по просмотрам, лимит 3
+  const { data: rows } = await supabase
+    .from('listings')
+    .select('*')
+    .eq('status', 'ACTIVE')
+    .eq('visibility', 'public')
+    .order('featured', { ascending: false })
+    .order('views', { ascending: false })
+    .limit(3)
+
+  const featuredListings = (rows ?? []).map(dbToListing)
+
+  // Количество проектов по категориям
+  const { data: categoryRows } = await supabase
+    .from('listings')
+    .select('category')
+    .eq('status', 'ACTIVE')
+    .eq('visibility', 'public')
+
+  const categoryCounts = (categoryRows ?? []).reduce<Record<string, number>>((acc, row) => {
+    acc[row.category] = (acc[row.category] ?? 0) + 1
+    return acc
+  }, {})
 
   return (
     <div className="flex flex-col">
@@ -225,7 +250,7 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      {mockListings.filter(l => l.category === category.value).length} проектов доступно
+                      {categoryCounts[category.value] ?? 0} проектов доступно
                     </p>
                   </CardContent>
                 </Card>

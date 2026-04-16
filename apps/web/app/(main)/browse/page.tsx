@@ -36,11 +36,10 @@ export default function BrowsePage() {
   const [sortBy, setSortBy]           = useState('newest')
   const [viewMode, setViewMode]       = useState<'grid' | 'list'>('grid')
 
-  // Загружаем с API
+  // Загружаем с API (без фильтра по категории — фильтруем на клиенте)
   useEffect(() => {
     setLoading(true)
     const params: Record<string, string> = { sort: sortBy }
-    if (filters.category?.length)  params.category = filters.category[0]
     if (filters.priceMin !== undefined) params.priceMin = String(filters.priceMin)
     if (filters.priceMax !== undefined) params.priceMax = String(filters.priceMax)
 
@@ -49,11 +48,15 @@ export default function BrowsePage() {
       .then(json => setListings((json.listings ?? []).map(dbToListing)))
       .catch(() => setListings([]))
       .finally(() => setLoading(false))
-  }, [sortBy, filters.category, filters.priceMin, filters.priceMax])
+  }, [sortBy, filters.priceMin, filters.priceMax])
 
-  // Клиентская фильтрация (поиск, tech stack, mrr)
+  // Клиентская фильтрация (категория, поиск, tech stack, mrr)
   const filtered = useMemo(() => {
     let res = [...listings]
+
+    if (filters.category?.length) {
+      res = res.filter(l => filters.category!.includes(l.category))
+    }
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
@@ -81,7 +84,7 @@ export default function BrowsePage() {
       res = res.filter(l => (l.metrics.mrr ?? 0) <= filters.mrrMax!)
 
     return res
-  }, [listings, searchQuery, filters.techStack, filters.mrrMin, filters.mrrMax])
+  }, [listings, searchQuery, filters.category, filters.techStack, filters.mrrMin, filters.mrrMax])
 
   const activeFiltersCount =
     (filters.category?.length || 0) +

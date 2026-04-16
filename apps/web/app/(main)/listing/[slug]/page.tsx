@@ -9,11 +9,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { RevenueChart } from '@/components/listing/revenue-chart'
 import { OfferDialog } from '@/components/listing/offer-dialog'
 import { ImageSlider } from '@/components/listing/image-slider'
+import { AskSellerDialog } from '@/components/listing/ask-seller-dialog'
+import { ShareButton } from '@/components/listing/share-button'
+import { FavoriteButton } from '@/components/listing/favorite-button'
 import { createClient } from '@/lib/supabase/server'
 import { dbToListing } from '@/lib/adapters/listing'
 import { CATEGORIES } from '@/lib/constants'
 import {
-  Eye, Heart, Share2, ExternalLink, Code2,
+  Eye, Heart, ExternalLink, Code2,
   TrendingUp, Users, BarChart3, DollarSign,
   ArrowLeft, CheckCircle2, Shield,
   FileText, Star
@@ -100,16 +103,9 @@ export default async function ListingPage({ params }: Props) {
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Eye className="h-4 w-4" />{listing.views} просмотров
               </span>
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Heart className="h-4 w-4" />{listing.favorites}
-              </span>
               <div className="ml-auto flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Heart className="mr-1.5 h-4 w-4" />Сохранить
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Share2 className="mr-1.5 h-4 w-4" />Поделиться
-                </Button>
+                <FavoriteButton listingId={listing.id} initialCount={listing.favorites} />
+                <ShareButton slug={listing.slug} />
               </div>
             </div>
           </div>
@@ -169,12 +165,17 @@ export default async function ListingPage({ params }: Props) {
 
             {/* Metrics */}
             <TabsContent value="metrics" className="mt-6 space-y-6">
-              {listing.metrics.revenue.monthly.length > 0 && (
-                <div>
-                  <h3 className="mb-4 font-semibold">Динамика выручки</h3>
+              <div>
+                <h3 className="mb-4 font-semibold">Динамика выручки</h3>
+                {listing.metrics.revenue.monthly.length > 0 ? (
                   <RevenueChart data={listing.metrics.revenue.monthly} />
-                </div>
-              )}
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-10 text-center">
+                    <BarChart3 className="mb-2 h-8 w-8 text-muted-foreground/30" strokeWidth={1} />
+                    <p className="text-sm text-muted-foreground">Продавец не добавил данные о выручке</p>
+                  </div>
+                )}
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
                   { label: 'MRR',                  value: `${symbol}${(listing.metrics.mrr || 0).toLocaleString()}` },
@@ -258,7 +259,7 @@ export default async function ListingPage({ params }: Props) {
         {/* RIGHT */}
         <div className="space-y-4">
           <Card className="sticky top-20 p-0 pb-6 z-[1]">
-            <CardContent className="space-y-5 pt-6">
+            <CardContent className="space-y-5 pt-5">
               <div>
                 <p className="text-sm text-muted-foreground">Запрашиваемая цена</p>
                 <p className="text-4xl font-bold tracking-tight">
@@ -286,11 +287,17 @@ export default async function ListingPage({ params }: Props) {
               <Separator className="border-dashed" />
 
               <OfferDialog
+                listingId={listing.id}
                 listingTitle={listing.title}
                 askingPrice={listing.price}
                 currency={listing.currency}
               />
-              <Button variant="outline" className="w-full">Задать вопрос продавцу</Button>
+              <AskSellerDialog
+                sellerName={sellerName}
+                listingTitle={listing.title}
+                listingId={listing.id}
+                sellerId={seller?.id ?? ''}
+              />
 
               <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                 <Shield className="mt-0.5 h-4 w-4 shrink-0" />
@@ -305,16 +312,19 @@ export default async function ListingPage({ params }: Props) {
               <CardTitle className="text-sm font-medium text-muted-foreground">Продавец</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
+              <Link
+                href={`/dashboard/users/${seller?.id}`}
+                className="flex items-center gap-3 group"
+              >
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={seller?.avatar_url ?? undefined} />
                   <AvatarFallback>{sellerInitial}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">{sellerName}</p>
+                  <p className="font-semibold group-hover:underline underline-offset-2">{sellerName}</p>
                   <p className="text-xs text-muted-foreground">На платформе с {joinedDate}</p>
                 </div>
-              </div>
+              </Link>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-lg bg-muted/50 p-3 text-center">
                   <p className="text-xs text-muted-foreground">Сделок</p>
@@ -333,7 +343,7 @@ export default async function ListingPage({ params }: Props) {
 
           {/* Meta */}
           <Card>
-            <CardContent className="space-y-2 pt-4 text-sm">
+            <CardContent className="space-y-2 text-sm">
               {[
                 { label: 'Опубликован', value: listing.publishedAt?.toLocaleDateString('ru-RU') ?? '—' },
                 { label: 'Обновлён',    value: listing.updatedAt.toLocaleDateString('ru-RU') },

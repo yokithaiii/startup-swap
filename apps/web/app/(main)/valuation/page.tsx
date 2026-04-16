@@ -67,7 +67,7 @@ export default function ValuationPage() {
       </div>
 
       {/* Calculator */}
-      <Card>
+      <Card className="pt-0">
         <CardContent className="pt-6 space-y-6">
 
           {/* MRR */}
@@ -139,7 +139,7 @@ export default function ValuationPage() {
       {/* Result */}
       {result && (
         <div className="mt-6 space-y-4">
-          <Card className="border-foreground/20">
+          <Card className="border-foreground/20 pt-0">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground mb-1">Оценочная стоимость</p>
               <p className="text-4xl font-bold tracking-tight">{fmt(result.mid)}</p>

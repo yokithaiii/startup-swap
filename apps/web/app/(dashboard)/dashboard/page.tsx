@@ -1,37 +1,73 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { mockListings } from '@/lib/mock-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import { CATEGORIES } from '@/lib/constants'
+import { dbToListing } from '@/lib/adapters/listing'
 import { useAuthStore } from '@/store/auth'
+import { Listing } from '@/types'
 import {
   Package, Eye, MessageSquare, Handshake,
-  TrendingUp, ArrowRight, ImageIcon, Clock
+  TrendingUp, ArrowRight, ImageIcon, Clock,
+  ExternalLink, Pencil
 } from 'lucide-react'
 
-// Mock data for dashboard
-const myListings = mockListings.slice(0, 2).map(l => ({ ...l, userId: 'me' }))
+const STATUS_STYLES: Record<string, string> = {
+  ACTIVE:         'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+  PENDING_REVIEW: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+  DRAFT:          'text-muted-foreground bg-muted border-border',
+  SOLD:           'text-blue-500 bg-blue-500/10 border-blue-500/20',
+  DELISTED:       'text-muted-foreground bg-muted border-border',
+  REJECTED:       'text-destructive bg-destructive/10 border-destructive/20',
+}
 
-const mockOffers = [
-  { id: '1', listingTitle: 'AI-Powered Content Generator SaaS', amount: 68000, from: 'Дмитрий В.', status: 'pending', date: '2 часа назад' },
-  { id: '2', listingTitle: 'AI-Powered Content Generator SaaS', amount: 55000, from: 'Анна К.', status: 'pending', date: '1 день назад' },
-  { id: '3', listingTitle: 'E-Commerce Analytics Dashboard', amount: 115000, from: 'Сергей М.', status: 'accepted', date: '3 дня назад' },
-]
+const STATUS_LABELS: Record<string, string> = {
+  ACTIVE:         'Активен',
+  PENDING_REVIEW: 'На проверке',
+  DRAFT:          'Черновик',
+  SOLD:           'Продан',
+  DELISTED:       'Снят',
+  REJECTED:       'Отклонён',
+}
 
-const stats = [
-  { label: 'Активных проектов', value: '2', icon: Package, trend: null },
-  { label: 'Просмотров за месяц', value: '3 350', icon: Eye, trend: '+12%' },
-  { label: 'Входящих офферов', value: '3', icon: MessageSquare, trend: '+2 новых' },
-  { label: 'Активных сделок', value: '1', icon: Handshake, trend: null },
-]
 
-const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
-  pending: { label: 'Ожидает', variant: 'secondary' },
-  accepted: { label: 'Принят', variant: 'default' },
-  rejected: { label: 'Отклонён', variant: 'outline' },
+interface DashOffer {
+  id: string
+  amount: number
+  currency: string
+  status: string
+  created_at: string
+  buyer_id: string
+  seller_id: string
+  listing: { title: string; slug: string }
+  buyer:  { first_name: string | null; last_name: string | null }
+  seller: { first_name: string | null; last_name: string | null }
+}
+
+const OFFER_STATUS: Record<string, { label: string; className: string }> = {
+  pending:   { label: 'Ожидает',   className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  accepted:  { label: 'Принят',    className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  rejected:  { label: 'Отклонён', className: 'bg-muted text-muted-foreground border-border' },
+  countered: { label: 'Встречный', className: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
+}
+
+function formatTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 60)  return `${m} мин. назад`
+  const h = Math.floor(m / 60)
+  if (h < 24)  return `${h} ч. назад`
+  const d = Math.floor(h / 24)
+  if (d < 7)   return `${d} дн. назад`
+  return new Date(iso).toLocaleDateString('ru-RU')
+}
+
+function formatName(p: { first_name: string | null; last_name: string | null } | null) {
+  if (!p) return 'Покупатель'
+  return [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Покупатель'
 }
 
 export default function DashboardPage() {
@@ -40,6 +76,42 @@ export default function DashboardPage() {
     ?? user?.firstName
     ?? profile?.email?.split('@')[0] 
     ?? 'Пользователь'
+
+  const [myListings, setMyListings] = useState<Listing[]>([])
+  const [listingsLoading, setListingsLoading] = useState(true)
+  const [recentOffers, setRecentOffers] = useState<DashOffer[]>([])
+  const [offersLoading, setOffersLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/listings/my')
+      .then(r => r.json())
+      .then(json => setMyListings((json.listings ?? []).map(dbToListing)))
+      .catch(() => setMyListings([]))
+      .finally(() => setListingsLoading(false))
+
+    Promise.all([
+      fetch('/api/offers?type=received').then(r => r.json()),
+      fetch('/api/offers?type=sent').then(r => r.json()),
+    ])
+      .then(([rec, sent]) => {
+        const all = [...(rec.offers ?? []), ...(sent.offers ?? [])]
+        all.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        setRecentOffers(all)
+      })
+      .catch(() => setRecentOffers([]))
+      .finally(() => setOffersLoading(false))
+  }, [])
+
+  const activeCount    = myListings.filter(l => l.status === 'ACTIVE').length
+  const totalViews     = myListings.reduce((sum, l) => sum + (l.views ?? 0), 0)
+  const pendingOffers  = recentOffers.filter(o => o.status === 'pending' && o.seller_id === user?.id).length
+
+  const stats = [
+    { label: 'Активных проектов',  value: listingsLoading ? null : String(activeCount),          icon: Package,       trend: null },
+    { label: 'Просмотров за месяц', value: listingsLoading ? null : totalViews.toLocaleString(), icon: Eye,           trend: null },
+    { label: 'Входящих офферов',   value: offersLoading   ? null : String(pendingOffers),         icon: MessageSquare, trend: pendingOffers > 0 ? `${pendingOffers} новых` : null },
+    { label: 'Активных сделок',    value: '0',                                                    icon: Handshake,     trend: null },
+  ]
 
   return (
     <div className="space-y-8">
@@ -57,7 +129,11 @@ export default function DashboardPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground">{label}</p>
-                  <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
+                  {value === null ? (
+                    <Skeleton className="mt-1 h-8 w-16" />
+                  ) : (
+                    <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
+                  )}
                   {trend && <p className="mt-1 text-xs text-emerald-500">{trend}</p>}
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-muted/50">
@@ -81,35 +157,78 @@ export default function DashboardPage() {
             </Link>
           </CardHeader>
           <CardContent className="space-y-3">
-            {myListings.map(listing => {
-              const category = CATEGORIES.find(c => c.value === listing.category)
-              return (
-                <Link key={listing.id} href={`/listing/${listing.slug}`}>
-                  <div className="flex items-center gap-4 rounded-lg border p-3 transition-colors hover:bg-muted/50">
-                    {/* Thumbnail */}
-                    <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-md border bg-muted">
-                      <ImageIcon className="h-5 w-5 text-muted-foreground/30" strokeWidth={1} />
-                    </div>
-                    {/* Info */}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{listing.title}</p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs font-normal">{category?.label}</Badge>
-                        <span className="text-xs text-muted-foreground">{listing.views} просм.</span>
-                        <span className="text-xs text-muted-foreground">{listing.inquiries} запросов</span>
+            {listingsLoading ? (
+              <>
+                <Skeleton className="h-[76px] w-full rounded-lg" />
+                <Skeleton className="h-[76px] w-full rounded-lg" />
+              </>
+            ) : myListings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-8 text-center">
+                <Package className="mb-2 h-8 w-8 text-muted-foreground/30" strokeWidth={1} />
+                <p className="text-sm text-muted-foreground">У вас пока нет проектов</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {myListings.slice(0, 3).map(listing => {
+                  const category    = CATEGORIES.find(c => c.value === listing.category)
+                  const statusStyle = STATUS_STYLES[listing.status] ?? STATUS_STYLES.DRAFT
+                  const statusLabel = STATUS_LABELS[listing.status] ?? listing.status
+                  const symbol      = listing.currency === 'USD' ? '$' : listing.currency === 'EUR' ? '€' : '₽'
+
+                  return (
+                    <div key={listing.id} className="flex items-start gap-4 rounded-lg border p-3 transition-colors hover:bg-muted/50">
+                      {/* Thumbnail */}
+                      <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                        {listing.thumbnailUrl ? (
+                          <img src={listing.thumbnailUrl} alt={listing.title} className="h-full w-full object-cover" />
+                        ) : (
+                          <ImageIcon className="h-5 w-5 text-muted-foreground/20" strokeWidth={1} />
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold leading-tight">{listing.title}</p>
+                            {listing.tagline && (
+                              <p className="mt-0.5 truncate text-xs text-muted-foreground">{listing.tagline}</p>
+                            )}
+                          </div>
+                          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${statusStyle}`}>
+                            {statusLabel}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="border rounded px-1.5 py-0.5">{category?.label}</span>
+                          <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{listing.views}</span>
+                          <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{listing.inquiries}</span>
+                          <span className="font-semibold text-foreground">{symbol}{Number(listing.price).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        {listing.status === 'ACTIVE' && (
+                          <Link href={`/listing/${listing.slug}`}>
+                            <Button variant="outline" size="icon" className="h-7 w-7">
+                              <ExternalLink className="h-3 w-3" />
+                            </Button>
+                          </Link>
+                        )}
+                        <Link href={`/dashboard/listings/${listing.id}/edit`}>
+                          <Button variant="outline" size="icon" className="h-7 w-7">
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                    {/* Price */}
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">${(listing.price / 1000).toFixed(0)}K</p>
-                      <Badge variant="secondary" className="mt-1 text-xs font-normal">Активен</Badge>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
+                  )
+                })}
+              </div>
+            )}
             <Link href="/sell/new">
-              <div className="flex items-center justify-center rounded-lg border border-dashed p-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground">
+              <div className="mt-1 flex items-center justify-center rounded-lg border border-dashed p-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground">
                 + Разместить новый проект
               </div>
             </Link>
@@ -127,33 +246,62 @@ export default function DashboardPage() {
             </Link>
           </CardHeader>
           <CardContent className="space-y-3">
-            {mockOffers.map(offer => {
-              const s = STATUS_MAP[offer.status]
-              return (
-                <div key={offer.id} className="space-y-1.5 rounded-lg border p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium leading-tight line-clamp-1">{offer.listingTitle}</p>
-                    <Badge variant={s.variant} className="shrink-0 text-xs font-normal">{s.label}</Badge>
+            {offersLoading ? (
+              <>
+                <Skeleton className="h-[88px] w-full rounded-lg" />
+                <Skeleton className="h-[88px] w-full rounded-lg" />
+              </>
+            ) : recentOffers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-8 text-center">
+                <MessageSquare className="mb-2 h-8 w-8 text-muted-foreground/30" strokeWidth={1} />
+                <p className="text-sm text-muted-foreground">Входящих офферов пока нет</p>
+              </div>
+            ) : (
+              recentOffers.slice(0, 4).map(offer => {
+                const s = OFFER_STATUS[offer.status] ?? OFFER_STATUS.pending
+                const symbol = offer.currency === 'USD' ? '$' : offer.currency === 'EUR' ? '€' : '₽'
+                const isReceived = offer.seller_id === user?.id
+                const counterpart = isReceived ? offer.buyer : offer.seller
+                return (
+                  <div key={offer.id} className="space-y-1.5 rounded-lg border p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-tight line-clamp-1">{offer.listing.title}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {isReceived ? (
+                            <Link href={`/dashboard/users/${offer.buyer_id}`} className="hover:underline underline-offset-2 hover:text-foreground transition-colors">
+                              от {formatName(counterpart)}
+                            </Link>
+                          ) : (
+                            <Link href={`/dashboard/users/${offer.seller_id}`} className="hover:underline underline-offset-2 hover:text-foreground transition-colors">
+                              → {formatName(counterpart)}
+                            </Link>
+                          )}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground">{isReceived ? '↓' : '↑'}</span>
+                        <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${s.className}`}>
+                          {s.label}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-base font-bold">{symbol}{Number(offer.amount).toLocaleString()}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {formatTime(offer.created_at)}
+                      </div>
+                    </div>
+                    {isReceived && offer.status === 'pending' && (
+                      <Link href="/dashboard/offers">
+                        <Button size="sm" className="h-7 w-full text-xs mt-1">Ответить</Button>
+                      </Link>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-base font-bold text-foreground">${offer.amount.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">от {offer.from}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {offer.date}
-                    </div>
-                  </div>
-                  {offer.status === 'pending' && (
-                    <div className="flex gap-2 pt-1">
-                      <Button size="sm" className="h-7 flex-1 text-xs">Принять</Button>
-                      <Button size="sm" variant="outline" className="h-7 flex-1 text-xs">Отклонить</Button>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+                )
+              })
+            )}
           </CardContent>
         </Card>
       </div>

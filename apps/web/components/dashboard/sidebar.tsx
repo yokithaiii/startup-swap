@@ -3,15 +3,17 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Rocket, LayoutDashboard, Package, MessageSquare, Handshake, Settings, ArrowLeft, LogOut } from 'lucide-react'
+import { Rocket, LayoutDashboard, Package, MessageSquare, Handshake, Settings, ArrowLeft, LogOut, Heart, MessageCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 
 const NAV = [
-  { href: '/dashboard', label: 'Обзор', icon: LayoutDashboard },
-  { href: '/dashboard/listings', label: 'Мои проекты', icon: Package },
-  { href: '/dashboard/offers', label: 'Офферы', icon: MessageSquare },
-  { href: '/dashboard/deals', label: 'Сделки', icon: Handshake },
-  { href: '/dashboard/settings', label: 'Настройки', icon: Settings },
+  { href: '/dashboard',            label: 'Обзор',        icon: LayoutDashboard },
+  { href: '/dashboard/listings',   label: 'Мои проекты',  icon: Package },
+  { href: '/dashboard/favorites',  label: 'Избранное',    icon: Heart },
+  { href: '/dashboard/messages',   label: 'Сообщения',    icon: MessageCircle },
+  { href: '/dashboard/offers',     label: 'Офферы',       icon: MessageSquare },
+  { href: '/dashboard/deals',      label: 'Сделки',       icon: Handshake },
+  { href: '/dashboard/settings',   label: 'Настройки',    icon: Settings },
 ]
 
 export function SidebarContent() {

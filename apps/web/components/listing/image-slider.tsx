@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
-import { ChevronLeft, ChevronRight, ImageIcon, Expand } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -16,41 +16,24 @@ interface Props {
 export function ImageSlider({ images, title, featured }: Props) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, dragFree: false })
   const [current, setCurrent] = useState(0)
 
-  const scrollPrev = useCallback(() => {
-    if (!emblaApi) return
-    emblaApi.scrollPrev()
-    setCurrent(emblaApi.selectedScrollSnap() - 1 < 0 ? images.length - 1 : emblaApi.selectedScrollSnap() - 1)
-  }, [emblaApi, images.length])
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
 
-  const scrollNext = useCallback(() => {
+  // Подписываемся на select через useEffect — единственный надёжный способ
+  useEffect(() => {
     if (!emblaApi) return
-    emblaApi.scrollNext()
-    setCurrent((emblaApi.selectedScrollSnap() + 1) % images.length)
-  }, [emblaApi, images.length])
-
-  const scrollTo = useCallback((index: number) => {
-    if (!emblaApi) return
-    emblaApi.scrollTo(index)
-    setCurrent(index)
+    const onSelect = () => setCurrent(emblaApi.selectedScrollSnap())
+    emblaApi.on('select', onSelect)
+    return () => { emblaApi.off('select', onSelect) }
   }, [emblaApi])
 
-  // Синхронизируем current с embla
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return
-    setCurrent(emblaApi.selectedScrollSnap())
-  }, [emblaApi])
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
+  const scrollTo   = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi])
 
-  // Подписываемся на событие select
-  const setEmblaRef = useCallback((node: HTMLDivElement | null) => {
-    if (emblaApi) emblaApi.on('select', onSelect)
-  }, [emblaApi, onSelect])
-
-  const openLightbox = (index: number) => {
-    setLightboxIndex(index)
+  const openLightbox = (i: number) => {
+    setLightboxIndex(i)
     setLightboxOpen(true)
   }
 
@@ -71,10 +54,10 @@ export function ImageSlider({ images, title, featured }: Props) {
 
   return (
     <>
-      <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
+      <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted group">
         {/* Embla viewport */}
         <div className="h-full w-full overflow-hidden" ref={emblaRef}>
-          <div className="flex h-full">
+          <div className="flex h-full touch-pan-y">
             {images.map((src, i) => (
               <div
                 key={src}
@@ -84,7 +67,7 @@ export function ImageSlider({ images, title, featured }: Props) {
                 <img
                   src={src}
                   alt={`${title} — ${i + 1}`}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover select-none"
                   draggable={false}
                 />
               </div>
@@ -92,27 +75,18 @@ export function ImageSlider({ images, title, featured }: Props) {
           </div>
         </div>
 
-        {/* Expand hint */}
-        <button
-          onClick={() => openLightbox(current)}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-opacity opacity-0 hover:opacity-100 group-hover:opacity-100"
-          style={{ opacity: 0.7 }}
-        >
-          <Expand className="h-4 w-4" />
-        </button>
-
         {/* Prev / Next */}
         {images.length > 1 && (
           <>
             <button
               onClick={scrollPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors opacity-0 group-hover:opacity-100"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={scrollNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors opacity-0 group-hover:opacity-100"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -145,7 +119,6 @@ export function ImageSlider({ images, title, featured }: Props) {
         )}
       </div>
 
-      {/* Lightbox */}
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}

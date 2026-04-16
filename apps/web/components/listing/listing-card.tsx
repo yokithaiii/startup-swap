@@ -2,12 +2,15 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Heart, TrendingUp, Users, Eye, ImageIcon } from 'lucide-react'
 import { Listing } from '@/types'
 import { CATEGORIES } from '@/lib/constants'
+import { useFavorites } from '@/hooks/use-favorites'
+import { cn } from '@/lib/utils'
 
 interface ListingCardProps {
   listing: Listing
@@ -16,11 +19,20 @@ interface ListingCardProps {
 export function ListingCard({ listing }: ListingCardProps) {
   const category = CATEGORIES.find(c => c.value === listing.category)
   const currencySymbol = listing.currency === 'USD' ? '$' : listing.currency === 'EUR' ? '€' : '₽'
+  const { isFavorite, toggle } = useFavorites()
+  const [favCount, setFavCount] = useState(listing.favorites)
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
     if (num >= 1000) return `${(num / 1000).toFixed(0)}K`
     return num.toString()
+  }
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const wasFav = isFavorite(listing.id)
+    setFavCount(c => wasFav ? Math.max(0, c - 1) : c + 1)
+    toggle(listing.id)
   }
 
   return (
@@ -56,12 +68,23 @@ export function ListingCard({ listing }: ListingCardProps) {
             size="icon"
             variant="secondary"
             className="absolute right-3 top-3 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-            onClick={(e) => {
-              e.preventDefault()
-            }}
+            onClick={handleFavorite}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={cn('h-4 w-4 transition-colors', isFavorite(listing.id) && 'fill-rose-500 text-rose-500')} />
           </Button>
+
+          {/* Favorites count */}
+          {favCount > 0 && (
+            <div className={cn(
+              'absolute bottom-3 right-3 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium backdrop-blur-sm transition-colors',
+              isFavorite(listing.id)
+                ? 'bg-rose-500/20 text-rose-500'
+                : 'bg-background/80 text-muted-foreground'
+            )}>
+              <Heart className={cn('h-3 w-3', isFavorite(listing.id) && 'fill-rose-500')} />
+              {favCount}
+            </div>
+          )}
         </div>
 
         <CardHeader className="space-y-2 pb-3 pt-3">
