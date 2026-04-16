@@ -21,6 +21,8 @@ import {
   DollarSign,
 } from 'lucide-react'
 
+export const revalidate = 60
+
 function SectionDivider() {
   return (
     <div className="h-px w-full border-t border-dashed border-border" />
@@ -394,8 +396,8 @@ export default async function Home() {
       {/* CTA */}
       <section className="py-20 md:py-28">
         <div className="container">
-          <div className="relative mx-8 md:mx-16 lg:mx-24">
-            <div className="relative overflow-hidden rounded-2xl bg-foreground px-8 pb-20 pt-16 text-center md:px-16">
+          <div className="relative mx-0 md:mx-16 lg:mx-24">
+            <div className="relative overflow-hidden rounded-2xl bg-foreground px-6 pb-20 pt-16 text-center md:px-16">
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]" />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(255,255,255,0.07),transparent)]" />
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -409,15 +411,15 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <div className="flex gap-3 rounded-xl border bg-background p-2 shadow-lg">
-                <Link href="/browse">
-                  <Button size="lg">
+            <div className="absolute -bottom-12 sm:-bottom-6 md:-bottom-6 left-1/2 -translate-x-1/2 w-full px-4 md:w-auto md:px-0">
+              <div className="flex flex-col gap-2 rounded-xl border bg-background p-2 shadow-lg sm:flex-row sm:gap-3">
+                <Link href="/browse" className="flex-1 md:flex-none">
+                  <Button size="lg" className="w-full md:w-auto">
                     Найти проект
                   </Button>
                 </Link>
-                <Link href="/sell/new">
-                  <Button size="lg" variant="outline">
+                <Link href="/sell/new" className="flex-1 md:flex-none">
+                  <Button size="lg" variant="outline" className="w-full md:w-auto">
                     Разместить проект
                   </Button>
                 </Link>

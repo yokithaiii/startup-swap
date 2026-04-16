@@ -87,17 +87,11 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-12 border-t pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="text-sm text-muted-foreground">
-            © 2024 StartupSwap. Все права защищены.
+            © 2026 StartupSwap. Все права защищены.
           </p>
           <div className="flex space-x-6 text-sm text-muted-foreground">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
-              Twitter
-            </a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+            <a href="https://github.com/yokithaiii/startup-swap" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
               GitHub
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
-              LinkedIn
             </a>
           </div>
         </div>

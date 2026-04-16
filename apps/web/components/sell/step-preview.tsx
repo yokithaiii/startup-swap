@@ -32,7 +32,13 @@ export function StepPreview({ form }: Props) {
         {/* Image */}
         <div className="relative h-48 overflow-hidden bg-muted">
           {data.thumbnailUrl ? (
-            <img src={data.thumbnailUrl} alt={data.title} className="h-full w-full object-cover" />
+            <img
+              src={data.thumbnailUrl}
+              alt={data.title}
+              className="h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <div className="flex flex-col items-center gap-2 text-muted-foreground/20">

@@ -148,7 +148,13 @@ export default function AdminListingsPage() {
                     {/* Thumbnail */}
                     <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
                       {listing.thumbnail_url ? (
-                        <img src={listing.thumbnail_url} alt={listing.title} className="h-full w-full object-cover" />
+                        <img
+                          src={listing.thumbnail_url}
+                          alt={listing.title}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
                       ) : (
                         <ImageIcon className="h-6 w-6 text-muted-foreground/20" strokeWidth={1} />
                       )}

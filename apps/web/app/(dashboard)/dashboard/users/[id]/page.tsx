@@ -250,7 +250,13 @@ export default function UserProfilePage() {
                           {/* Thumbnail */}
                           <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
                             {listing.thumbnail_url ? (
-                              <img src={listing.thumbnail_url} alt={listing.title} className="h-full w-full object-cover" />
+                              <img
+                                src={listing.thumbnail_url}
+                                alt={listing.title}
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                                decoding="async"
+                              />
                             ) : (
                               <Package className="h-5 w-5 text-muted-foreground/20" strokeWidth={1} />
                             )}

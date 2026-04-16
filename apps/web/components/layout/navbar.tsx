@@ -5,10 +5,10 @@ import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { 
   Rocket, 
-  Search, 
   Menu,
   Sun,
-  Moon
+  Moon,
+  X,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet'
 import { useAuthStore } from '@/store/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -115,18 +115,85 @@ export function Navbar() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
-              <div className="flex flex-col space-y-4 mt-8">
-                <Link href="/browse" className="text-lg font-medium">Каталог</Link>
-                <Link href="/sell" className="text-lg font-medium">Продать</Link>
-                <Link href="/buy" className="text-lg font-medium">Купить</Link>
-                <Link href="/how-it-works" className="text-lg font-medium">Как это работает</Link>
-                {isAuthenticated && (
+            <SheetContent side="right" className="w-72 p-0">
+              <SheetTitle className="sr-only">Меню</SheetTitle>
+
+              {/* Header */}
+              <div className="flex h-16 items-center justify-between border-b px-6">
+                <Link href="/" className="flex items-center gap-2">
+                  <Rocket className="h-5 w-5" />
+                  <span className="font-bold">StartupSwap</span>
+                </Link>
+              </div>
+
+              {/* Nav links */}
+              <nav className="flex flex-col p-4 space-y-1">
+                {[
+                  { href: '/browse',        label: 'Каталог' },
+                  { href: '/buy',           label: 'Купить' },
+                  { href: '/sell',          label: 'Продать' },
+                  { href: '/how-it-works',  label: 'Как это работает' },
+                  { href: '/valuation',     label: 'Оценить проект' },
+                  { href: '/faq',           label: 'FAQ' },
+                ].map(({ href, label }) => (
+                  <SheetClose asChild key={href}>
+                    <Link
+                      href={href}
+                      className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    >
+                      {label}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </nav>
+
+              {/* Auth section */}
+              <div className="border-t p-4 space-y-2">
+                {isAuthenticated ? (
                   <>
-                    <hr />
-                    <Link href="/sell/new" className="text-lg font-medium">Продать стартап</Link>
-                    <Link href="/dashboard" className="text-lg font-medium">Дашборд</Link>
-                    <Link href="/settings" className="text-lg font-medium">Настройки</Link>
+                    <div className="flex items-center gap-3 px-3 py-2 mb-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={profile?.avatar_url ?? undefined} />
+                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {profile?.first_name ?? user?.firstName ?? 'Пользователь'}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
+                      </div>
+                    </div>
+                    <SheetClose asChild>
+                      <Link href="/dashboard">
+                        <Button className="w-full" size="sm">Дашборд</Button>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/sell/new">
+                        <Button variant="outline" className="w-full mt-2" size="sm">Разместить проект</Button>
+                      </Link>
+                    </SheetClose>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-destructive hover:text-destructive mt-2"
+                      size="sm"
+                      onClick={signOut}
+                    >
+                      Выйти
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <SheetClose asChild>
+                      <Link href="/sign-in">
+                        <Button variant="outline" className="w-full" size="sm">Войти</Button>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/sign-up">
+                        <Button className="w-full mt-2" size="sm">Начать бесплатно</Button>
+                      </Link>
+                    </SheetClose>
                   </>
                 )}
               </div>

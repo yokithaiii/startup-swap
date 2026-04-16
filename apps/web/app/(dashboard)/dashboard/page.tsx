@@ -180,7 +180,13 @@ export default function DashboardPage() {
                       {/* Thumbnail */}
                       <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
                         {listing.thumbnailUrl ? (
-                          <img src={listing.thumbnailUrl} alt={listing.title} className="h-full w-full object-cover" />
+                          <img
+                            src={listing.thumbnailUrl}
+                            alt={listing.title}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
                         ) : (
                           <ImageIcon className="h-5 w-5 text-muted-foreground/20" strokeWidth={1} />
                         )}

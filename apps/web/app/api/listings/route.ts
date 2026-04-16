@@ -47,7 +47,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ listings: data, total: count, page, limit })
+  return NextResponse.json(
+    { listings: data, total: count, page, limit },
+    {
+      headers: {
+        // Кэш на CDN 60 сек, браузер переспрашивает каждый раз
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    }
+  )
 }
 
 // POST /api/listings — создание листинга

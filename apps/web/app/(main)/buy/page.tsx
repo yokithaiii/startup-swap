@@ -20,7 +20,7 @@ export default function BuyPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px]" />
         <div className="container relative py-24 md:py-32">
           <div className="mx-auto max-w-3xl text-center">
-            <Badge variant="outline" className="mb-6 px-3 py-1">
+            <Badge variant="outline" className="mb-6 p-3">
               <CheckCircle2 className="mr-1.5 h-3 w-3" />
               Все проекты верифицированы
             </Badge>
@@ -134,7 +134,7 @@ export default function BuyPage() {
               { icon: TrendingUp, title: 'Tech Stack фильтр', desc: 'Ищите проекты по технологиям. Найдите то, что умеете развивать.' },
               { icon: Users, title: 'Поддержка при передаче', desc: 'Продавец обязан помочь с миграцией и онбордингом в течение 30 дней после сделки.' },
             ].map(({ icon: Icon, title, desc }) => (
-              <Card key={title}>
+              <Card key={title} className="pt-0">
                 <CardContent className="pt-6">
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border bg-muted/50">
                     <Icon className="h-5 w-5" />
