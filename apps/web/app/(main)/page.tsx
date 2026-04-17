@@ -30,6 +30,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'StartupSwap — Покупайте и продавайте готовые AI-проекты',
     description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов, AI-оценка стоимости и защищённый эскроу.',
+    images: [
+      {
+        url: '/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'StartupSwap — Биржа готовых AI-проектов',
+      },
+    ],
   },
 }
 
