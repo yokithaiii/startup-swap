@@ -10,7 +10,7 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://startupswap.ru'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://startup-swap-seven.vercel.app/'
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
