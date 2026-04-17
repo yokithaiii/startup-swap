@@ -7,6 +7,7 @@ import { CATEGORIES } from '@/lib/constants'
 import { ValuationWidget } from '@/components/landing/valuation-widget'
 import { createClient } from '@/lib/supabase/server'
 import { dbToListing } from '@/lib/adapters/listing'
+import type { Metadata } from 'next'
 import { 
   Rocket, 
   Zap, 
@@ -22,6 +23,15 @@ import {
 } from 'lucide-react'
 
 export const revalidate = 60
+
+export const metadata: Metadata = {
+  title: 'StartupSwap — Покупайте и продавайте готовые AI-проекты',
+  description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов, AI-оценка стоимости и защищённый эскроу.',
+  openGraph: {
+    title: 'StartupSwap — Покупайте и продавайте готовые AI-проекты',
+    description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов, AI-оценка стоимости и защищённый эскроу.',
+  },
+}
 
 function SectionDivider() {
   return (

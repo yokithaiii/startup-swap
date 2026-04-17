@@ -2,10 +2,20 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import type { Metadata } from 'next'
 import {
   ArrowRight, Search, Shield, BarChart3, CheckCircle2,
   FileText, MessageSquare, Lock, TrendingUp, Zap, Users
 } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Купить готовый проект — каталог верифицированных стартапов',
+  description: 'Найдите прибыльный технологический проект для покупки. SaaS, AI, e-commerce с реальными метриками, подтверждённой выручкой и защищённой сделкой через эскроу.',
+  openGraph: {
+    title: 'Купить готовый проект — каталог верифицированных стартапов',
+    description: 'Найдите прибыльный технологический проект для покупки. SaaS, AI, e-commerce с реальными метриками.',
+  },
+}
 
 function SectionDivider() {
   return <div className="h-px w-full border-t border-dashed border-border" />

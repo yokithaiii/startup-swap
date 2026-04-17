@@ -1,6 +1,16 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'FAQ — Часто задаваемые вопросы',
+  description: 'Ответы на частые вопросы о покупке и продаже проектов на StartupSwap: верификация, эскроу, комиссии, безопасность сделок.',
+  openGraph: {
+    title: 'FAQ — Часто задаваемые вопросы о StartupSwap',
+    description: 'Ответы на частые вопросы о покупке и продаже проектов, верификации, эскроу и комиссиях.',
+  },
+}
 
 const FAQ = [
   {

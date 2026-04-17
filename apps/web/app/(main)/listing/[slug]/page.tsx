@@ -3,8 +3,10 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { Metadata } from 'next'
 
 export const revalidate = 300
+
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -26,6 +28,42 @@ import {
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = await createClient()
+
+  const { data: row } = await supabase
+    .from('listings')
+    .select('title, tagline, description, price, currency, thumbnail_url, images, category')
+    .eq('slug', slug)
+    .single()
+
+  if (!row) return { title: 'Проект не найден' }
+
+  const symbol = row.currency === 'USD' ? '$' : row.currency === 'EUR' ? '€' : '₽'
+  const price  = `${symbol}${Number(row.price).toLocaleString('ru-RU')}`
+  const title  = `${row.title} — ${price}`
+  const desc   = row.tagline ?? row.description?.slice(0, 155) ?? ''
+  const image  = row.images?.[0] ?? row.thumbnail_url ?? undefined
+
+  return {
+    title,
+    description: desc,
+    openGraph: {
+      title,
+      description: desc,
+      type: 'website',
+      ...(image && { images: [{ url: image, width: 1200, height: 630, alt: row.title }] }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: desc,
+      ...(image && { images: [image] }),
+    },
+  }
 }
 
 export default async function ListingPage({ params }: Props) {

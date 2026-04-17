@@ -2,10 +2,20 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import type { Metadata } from 'next'
 import {
   ArrowRight, Zap, Shield, BarChart3, CheckCircle2,
   Clock, DollarSign, Users, TrendingUp, FileText, Lock
 } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Продать проект — разместить стартап на маркетплейсе',
+  description: 'Продайте свой SaaS, AI-инструмент или онлайн-бизнес за 30–90 дней. Бесплатное размещение, верификация за 24–48 часов, комиссия 10% только после сделки.',
+  openGraph: {
+    title: 'Продать проект — разместить стартап на маркетплейсе',
+    description: 'Продайте свой SaaS, AI-инструмент или онлайн-бизнес за 30–90 дней. Бесплатное размещение.',
+  },
+}
 
 function SectionDivider() {
   return <div className="h-px w-full border-t border-dashed border-border" />

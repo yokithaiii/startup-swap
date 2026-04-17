@@ -1,10 +1,20 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { Metadata } from 'next'
 import {
   Search, FileText, MessageSquare, Shield, CheckCircle2,
   ArrowRight, Upload, BarChart3, Zap, Lock, Users
 } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Как это работает — процесс покупки и продажи проектов',
+  description: 'Узнайте как купить или продать технологический проект на StartupSwap. Три шага: изучите проект, сделайте предложение, получите проект через защищённый эскроу.',
+  openGraph: {
+    title: 'Как это работает — процесс покупки и продажи проектов',
+    description: 'Три шага от поиска до закрытия сделки. Верификация за 24–48 часов, защищённый эскроу.',
+  },
+}
 
 function SectionDivider() {
   return <div className="h-px w-full border-t border-dashed border-border" />
