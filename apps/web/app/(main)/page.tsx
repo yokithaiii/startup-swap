@@ -26,10 +26,10 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'StartupSwap — Покупайте и продавайте готовые AI-проекты',
-  description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов, AI-оценка стоимости и защищённый эскроу.',
+  description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов и AI-оценка стоимости.',
   openGraph: {
     title: 'StartupSwap — Покупайте и продавайте готовые AI-проекты',
-    description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов, AI-оценка стоимости и защищённый эскроу.',
+    description: 'Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов. Верификация за 24–48 часов и AI-оценка стоимости.',
     images: [
       {
         url: '/og-default.png',
@@ -97,7 +97,7 @@ export default async function Home() {
             
             <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
               Маркетплейс для быстрой покупки и продажи прибыльных технологических проектов.
-              Верификация, AI-оценка стоимости и защищённый эскроу.
+              Верификация и AI-оценка стоимости.
             </p>
             
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -226,7 +226,7 @@ export default async function Home() {
                   Размещение бесплатно. Комиссия 10% только после сделки. Верификация за 24–48 часов.
                 </p>
                 <div className="relative mt-6 flex flex-wrap gap-2">
-                  {['Бесплатно', '24–48ч', 'Эскроу'].map(t => (
+                  {['Бесплатно', '24–48ч', 'Сделка'].map(t => (
                     <span key={t} className="rounded-full border border-background/20 bg-background/10 px-3 py-0.5 text-xs text-background/70">{t}</span>
                   ))}
                 </div>
@@ -315,7 +315,7 @@ export default async function Home() {
               {
                 icon: Shield,
                 title: '3. Получите проект',
-                description: 'Сделка проходит через эскроу. Вы получаете код, документацию и поддержку при передаче.',
+                description: 'Сделка проходит через платформу. Вы получаете код, документацию и поддержку при передаче.',
               },
             ].map((step, index) => (
               <Card key={index} className="relative overflow-hidden">
@@ -375,8 +375,8 @@ export default async function Home() {
                 icon: Lock,
                 iconClass: 'text-emerald-500',
                 bgClass: 'bg-emerald-50 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900',
-                title: 'Защищённый эскроу',
-                description: 'Средства заморожены до выполнения всех условий сделки. Безопасно для обеих сторон.',
+                title: 'Безопасная сделка',
+                description: 'Условия сделки фиксируются на платформе. Поэтапная передача проекта защищает обе стороны.',
               },
             ].map((feature, index) => (
               <div key={index} className="flex flex-col items-center text-center">

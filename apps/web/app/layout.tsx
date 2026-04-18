@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { CookieBanner } from "@/components/layout/cookie-banner";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -73,6 +74,7 @@ export default function RootLayout({
             {children}
           </AuthProvider>
           <Toaster position="top-right" />
+          <CookieBanner />
         </ThemeProvider>
       </body>
     </html>

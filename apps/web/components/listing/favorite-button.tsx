@@ -16,9 +16,13 @@ export function FavoriteButton({ listingId, initialCount = 0 }: FavoriteButtonPr
   const [count, setCount] = useState(initialCount)
   const fav = isFavorite(listingId)
 
-  const handleClick = () => {
-    setCount(c => fav ? Math.max(0, c - 1) : c + 1)
-    toggle(listingId)
+  const handleClick = async () => {
+    const wasFav = fav
+    setCount(c => wasFav ? Math.max(0, c - 1) : c + 1)
+    const ok = await toggle(listingId)
+    if (!ok) {
+      setCount(c => wasFav ? c + 1 : Math.max(0, c - 1))
+    }
   }
 
   return (

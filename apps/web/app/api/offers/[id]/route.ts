@@ -46,6 +46,24 @@ export async function PATCH(request: Request, { params }: Params) {
   const amount = `${symbol}${Number(offer.amount).toLocaleString()}`
 
   if (status === 'accepted') {
+    // Создаём сделку
+    const MILESTONES = [
+      { title: 'Передача кода и доступов',  pct: 30, done: false },
+      { title: 'Документация и обучение',   pct: 30, done: false },
+      { title: 'Миграция и настройка',      pct: 30, done: false },
+      { title: 'Поддержка 30 дней',         pct: 10, done: false },
+    ]
+    await supabase.from('deals').insert({
+      listing_id:  offer.listing_id,
+      offer_id:    offer.id,
+      buyer_id:    offer.buyer_id,
+      seller_id:   offer.seller_id,
+      final_price: offer.amount,
+      currency:    offer.currency,
+      status:      'IN_PROGRESS',
+      milestones:  MILESTONES,
+    })
+
     await createNotification({
       supabase,
       userId:    offer.buyer_id,

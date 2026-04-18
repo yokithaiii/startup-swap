@@ -12,11 +12,10 @@ import {
 import { useAuthStore } from '@/store/auth'
 import { useCountsStore } from '@/store/counts'
 
-export function SidebarContent() {
-  const pathname           = usePathname()
-  const { signOut, profile, user } = useAuthStore()
-  const { offers, messages, load, subscribeRealtime } = useCountsStore()
-  const isAdmin    = profile?.role === 'ADMIN'
+// Инициализация счётчиков — рендерится ОДИН раз в layout
+export function CountsProvider() {
+  const { user, profile }                    = useAuthStore()
+  const { load, subscribeRealtime }          = useCountsStore()
   const currentUserId = user?.id ?? profile?.id ?? ''
 
   useEffect(() => {
@@ -25,6 +24,15 @@ export function SidebarContent() {
     const unsub = subscribeRealtime(currentUserId)
     return unsub
   }, [currentUserId, load, subscribeRealtime])
+
+  return null
+}
+
+export function SidebarContent() {
+  const pathname      = usePathname()
+  const { signOut, profile, user } = useAuthStore()
+  const { offers, messages }       = useCountsStore()
+  const isAdmin       = profile?.role === 'ADMIN'
 
   const NAV = [
     { href: '/dashboard',            label: 'Обзор',        icon: LayoutDashboard, count: 0 },

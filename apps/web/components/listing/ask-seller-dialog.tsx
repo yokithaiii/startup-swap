@@ -22,6 +22,7 @@ interface AskSellerDialogProps {
   listingTitle: string
   listingId:    string
   sellerId:     string
+  fullWidth?:   boolean
 }
 
 export function AskSellerDialog({
@@ -29,6 +30,7 @@ export function AskSellerDialog({
   listingTitle,
   listingId,
   sellerId,
+  fullWidth = false,
 }: AskSellerDialogProps) {
   const router          = useRouter()
   const [open, setOpen] = useState(false)
@@ -78,7 +80,7 @@ export function AskSellerDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className={fullWidth ? 'w-full' : undefined}>
           <MessageCircle className="mr-2 h-4 w-4" />
           Задать вопрос продавцу
         </Button>

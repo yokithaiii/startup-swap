@@ -74,8 +74,10 @@ export default function SignUpPage() {
 
         {/* Logo */}
         <div className="relative flex items-center gap-2">
-          <Rocket className="h-5 w-5 text-white" />
-          <span className="text-lg font-bold text-white">StartupSwap</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <Rocket className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold">StartupSwap</span>
+          </Link>
         </div>
 
         {/* Center */}

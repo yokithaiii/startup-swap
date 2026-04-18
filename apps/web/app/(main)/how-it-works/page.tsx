@@ -9,10 +9,10 @@ import {
 
 export const metadata: Metadata = {
   title: 'Как это работает — процесс покупки и продажи проектов',
-  description: 'Узнайте как купить или продать технологический проект на StartupSwap. Три шага: изучите проект, сделайте предложение, получите проект через защищённый эскроу.',
+  description: 'Узнайте как купить или продать технологический проект на StartupSwap. Три шага: изучите проект, сделайте предложение, получите проект.',
   openGraph: {
     title: 'Как это работает — процесс покупки и продажи проектов',
-    description: 'Три шага от поиска до закрытия сделки. Верификация за 24–48 часов, защищённый эскроу.',
+    description: 'Три шага от поиска до закрытия сделки. Верификация за 24–48 часов.',
   },
 }
 
@@ -52,7 +52,7 @@ export default function HowItWorksPage() {
               { step: '01', icon: Upload, title: 'Разместите проект', desc: 'Заполните форму: описание, метрики, tech stack, цена. AI подскажет справедливую оценку.' },
               { step: '02', icon: Zap, title: 'Верификация 24–48ч', desc: 'Мы проверяем метрики и документы. Верифицированные проекты получают больше доверия покупателей.' },
               { step: '03', icon: MessageSquare, title: 'Получайте офферы', desc: 'Покупатели присылают предложения. Ведите переговоры прямо на платформе.' },
-              { step: '04', icon: Lock, title: 'Закройте сделку', desc: 'Средства замораживаются в эскроу. Передайте проект — получите деньги.' },
+              { step: '04', icon: Lock, title: 'Закройте сделку', desc: 'Договоритесь об условиях передачи. Поэтапно передайте проект и получите оплату.' },
             ].map(({ step, icon: Icon, title, desc }) => (
               <Card key={step} className="relative overflow-hidden">
                 <div className="absolute right-4 top-4 text-5xl font-bold text-muted/30 select-none leading-none">{step}</div>
@@ -88,7 +88,7 @@ export default function HowItWorksPage() {
               { step: '01', icon: Search, title: 'Найдите проект', desc: 'Фильтруйте по категории, tech stack, MRR и цене. Смотрите верифицированные метрики.' },
               { step: '02', icon: FileText, title: 'Изучите детали', desc: 'Подпишите NDA и получите доступ к финансовым отчётам, аналитике и коду.' },
               { step: '03', icon: MessageSquare, title: 'Сделайте оффер', desc: 'Предложите цену и условия. Договоритесь с продавцом напрямую.' },
-              { step: '04', icon: CheckCircle2, title: 'Получите проект', desc: 'Эскроу защищает обе стороны. Получите код, документацию и поддержку при передаче.' },
+              { step: '04', icon: CheckCircle2, title: 'Получите проект', desc: 'Платформа фиксирует этапы передачи. Получите код, документацию и поддержку.' },
             ].map(({ step, icon: Icon, title, desc }) => (
               <Card key={step} className="relative overflow-hidden">
                 <div className="absolute right-4 top-4 text-5xl font-bold text-muted/30 select-none leading-none">{step}</div>
@@ -112,14 +112,14 @@ export default function HowItWorksPage() {
 
       <SectionDivider />
 
-      {/* Escrow */}
+      {/* Deal stages */}
       <section className="py-20 md:py-28">
         <div className="container">
           <div className="mb-12 text-center">
             <p className="mb-3 text-sm font-medium italic text-muted-foreground">Безопасность</p>
-            <h2 className="text-3xl font-bold tracking-tight">Как работает эскроу</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Этапы передачи проекта</h2>
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              Средства замораживаются до выполнения всех этапов передачи. Никто не рискует.
+              Платформа фиксирует каждый этап. Обе стороны видят прогресс и подтверждают выполнение.
             </p>
           </div>
           <div className="mx-auto max-w-3xl space-y-3">

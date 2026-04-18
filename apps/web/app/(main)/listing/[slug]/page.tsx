@@ -285,12 +285,18 @@ export default async function ListingPage({ params }: Props) {
             <TabsContent value="docs" className="mt-6">
               <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
                 <FileText className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1} />
-                <p className="font-medium">Документы доступны после подписания NDA</p>
-                <p className="mt-1 text-sm text-muted-foreground">Финансовые отчёты, аналитика и доступ к коду</p>
-                <Button className="mt-6" variant="outline">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Подписать NDA и получить доступ
-                </Button>
+                <p className="font-medium">Документы</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Запросите доступ к финансовым отчётам и документации через чат с продавцом
+                </p>
+                <div className="mt-6">
+                  <AskSellerDialog
+                    sellerName={sellerName}
+                    listingTitle={listing.title}
+                    listingId={listing.id}
+                    sellerId={seller?.id ?? ''}
+                  />
+                </div>
               </div>
             </TabsContent>
           </Tabs>
@@ -337,11 +343,12 @@ export default async function ListingPage({ params }: Props) {
                 listingTitle={listing.title}
                 listingId={listing.id}
                 sellerId={seller?.id ?? ''}
+                fullWidth
               />
 
               <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                 <Shield className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>Сделка защищена эскроу. Средства переводятся только после передачи проекта.</span>
+                <span>Условия сделки обсуждаются напрямую между покупателем и продавцом через встроенный чат.</span>
               </div>
             </CardContent>
           </Card>

@@ -32,7 +32,7 @@ export function useFavorites() {
     })
   }, [])
 
-  const toggle = useCallback(async (listingId: string) => {
+  const toggle = useCallback(async (listingId: string): Promise<boolean> => {
     const isFav = ids.has(listingId)
 
     // Optimistic update
@@ -57,12 +57,13 @@ export function useFavorites() {
           return next
         })
         toast.error('Войдите, чтобы добавить в избранное')
-        return
+        return false
       }
 
       if (!res.ok) throw new Error()
 
       toast.success(isFav ? 'Убрано из избранного' : 'Добавлено в избранное')
+      return true
     } catch {
       // Откатываем при ошибке
       setIds(prev => {
@@ -72,6 +73,7 @@ export function useFavorites() {
         return next
       })
       toast.error('Не удалось обновить избранное')
+      return false
     }
   }, [ids])
 

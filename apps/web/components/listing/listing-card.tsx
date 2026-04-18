@@ -53,11 +53,16 @@ export function ListingCard({ listing }: ListingCardProps) {
     return num.toString()
   }
 
-  const handleFavorite = (e: React.MouseEvent) => {
+  const handleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault()
     const wasFav = isFavorite(listing.id)
+    // Оптимистично меняем счётчик
     setFavCount(c => wasFav ? Math.max(0, c - 1) : c + 1)
-    toggle(listing.id)
+    const ok = await toggle(listing.id)
+    // Если не получилось (не авторизован или ошибка) — откатываем
+    if (!ok) {
+      setFavCount(c => wasFav ? c + 1 : Math.max(0, c - 1))
+    }
   }
 
   return (

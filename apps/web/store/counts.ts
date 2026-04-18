@@ -56,16 +56,6 @@ export const useCountsStore = create<CountsStore>((set, get) => ({
           set(s => ({ offers: Math.max(0, s.offers - 1) }))
         }
       })
-      // Новое входящее сообщение
-      .on('postgres_changes', {
-        event:  'INSERT',
-        schema: 'public',
-        table:  'messages',
-      }, (payload) => {
-        if ((payload.new as any).sender_id !== userId) {
-          set(s => ({ messages: s.messages + 1 }))
-        }
-      })
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
